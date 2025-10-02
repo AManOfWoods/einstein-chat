@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: einstein-physics-chat
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: APPID
+        sync: false
+      - key: API_SECRET
+        sync: false
+      - key: API_KEY
+        sync: false
+      - key: SPARK_API_KEY
+        sync: false
+      - key: SPARK_URL
+        value: https://spark-api-open.xf-yun.com/v1/chat/completions

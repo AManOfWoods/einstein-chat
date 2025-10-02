@@ -1,0 +1,478 @@
+<html lang="zh-CN"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱因斯坦物理探索空间</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <!-- 配置Tailwind自定义主题 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#FFF8E6',
+                        accent: '#FF7D00',
+                        dark: '#1E293B',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        display: ['Playfair Display', 'Georgia', 'serif'],
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                },
+            }
+        }
+    </script>
+    
+    <!-- 自定义工具类 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .exhibit-shadow {
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            }
+            .hover-scale {
+                transition: transform 0.3s ease;
+            }
+            .hover-scale:hover {
+                transform: scale(1.02);
+            }
+        }
+    </style>
+    
+    <!-- 导入字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&amp;display=swap" rel="stylesheet">
+</head>
+<body class="bg-gradient-to-br from-light to-secondary min-h-screen font-sans text-dark overflow-x-hidden">
+    <!-- 顶部装饰元素 -->
+    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-accent to-primary"></div>
+    
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <!-- 标题区域 -->
+        <header class="text-center mb-6">
+            <h1 class="text-[clamp(1.8rem,5vw,3rem)] font-display font-bold text-primary text-shadow">
+                爱因斯坦物理探索空间
+            </h1>
+            <p class="text-gray-600 mt-2 max-w-3xl mx-auto">
+                与科学巨匠对话，探索物理世界的奇妙规律
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- 左侧：科普内容展示区 -->
+            <div class="lg:col-span-1 space-y-6">
+                <!-- 爱因斯坦简介 -->
+                <div class="bg-white rounded-xl p-5 exhibit-shadow hover-scale">
+                    <div class="flex items-start">
+                        <img src="https://picsum.photos/id/1027/120/120" alt="阿尔伯特·爱因斯坦" class="w-24 h-24 rounded-full object-cover border-4 border-primary/20">
+                        <div class="ml-4">
+                            <h3 class="font-display text-xl font-bold text-primary">阿尔伯特·爱因斯坦</h3>
+                            <p class="text-sm text-gray-600 mt-1">1879 - 1955</p>
+                            <p class="mt-2 text-sm">
+                                20世纪最伟大的物理学家之一，提出了相对论和光电效应理论，
+                                1921年获得诺贝尔物理学奖，对现代物理学的发展产生了深远影响。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 物理现象可视化 -->
+                <div class="bg-white rounded-xl p-5 exhibit-shadow hover-scale">
+                    <h3 class="font-display text-lg font-bold text-primary mb-3 flex items-center">
+                        <i class="fa fa-lightbulb-o mr-2 text-accent"></i>物理现象可视化
+                    </h3>
+                    
+                    <!-- 重力场模拟 -->
+                    <div class="mb-4">
+                        <h4 class="text-sm font-semibold text-gray-700">重力场模拟</h4>
+                        <div class="w-full h-40 mt-2 relative overflow-hidden rounded-lg bg-gray-100">
+                            <div id="gravitySimulation" class="w-full h-full"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">
+                            质量会弯曲时空，就像重物放在弹性垫上产生的凹陷，这就是引力的本质
+                        </p>
+                    </div>
+                    
+                    <!-- 光的折射演示 -->
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-700">光的折射</h4>
+                        <div class="w-full h-32 mt-2 relative rounded-lg bg-gray-100 overflow-hidden">
+                            <div id="refractionDemo" class="w-full h-full"></div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">
+                            光从一种介质进入另一种介质时会改变方向，这就是我们看到筷子在水中"弯折"的原因
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- 物理小知识 -->
+                <div class="bg-white rounded-xl p-5 exhibit-shadow hover-scale">
+                    <h3 class="font-display text-lg font-bold text-primary mb-3 flex items-center">
+                        <i class="fa fa-book mr-2 text-accent"></i>物理小知识
+                    </h3>
+                    <div id="factContainer" class="space-y-3">
+                        <div class="p-3 bg-blue-50 rounded-lg border-l-4 border-primary">
+                            <p class="text-sm">光在真空中的传播速度约为300,000公里/秒，是宇宙中最快的速度。</p>
+                        </div>
+                    </div>
+                    <button id="newFactBtn" class="mt-3 text-xs text-primary hover:text-primary/80 flex items-center">
+                        <i class="fa fa-refresh mr-1"></i> 换一个知识点
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 右侧：聊天区域 -->
+            <div class="lg:col-span-2 flex flex-col">
+                <!-- 聊天容器 -->
+                <div class="bg-white rounded-xl exhibit-shadow flex flex-col flex-grow">
+                    <!-- 聊天头部 -->
+                    <div class="bg-primary text-white p-4 rounded-t-xl">
+                        <div class="flex items-center">
+                            <h2 class="font-display text-xl">与爱因斯坦对话</h2>
+                            <div class="ml-auto flex space-x-3">
+                                <button id="clearChatBtn" class="hover:text-gray-200 transition-colors text-sm flex items-center">
+                                    <i class="fa fa-eraser mr-1"></i> 清空对话
+                                </button>
+                                <button id="helpBtn" class="hover:text-gray-200 transition-colors text-sm flex items-center">
+                                    <i class="fa fa-question-circle mr-1"></i> 帮助
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-xs opacity-80 mt-1">
+                            请输入你的物理问题，爱因斯坦将为你解答
+                        </p>
+                    </div>
+                    
+                    <!-- 聊天消息区域 -->
+                    <div class="flex-grow p-4 overflow-y-auto h-[500px]" id="chatMessages">
+                        <!-- 欢迎消息 -->
+                        <div class="flex mb-6 animate-[fadeIn_0.5s_ease-in-out]">
+                            <img src="./avatar.png" alt="爱因斯坦头像" class="w-12 h-12 rounded-full mr-3 flex-shrink-0">
+                            <div class="bg-gray-100 rounded-lg rounded-tr-none p-4 max-w-[85%] shadow-sm">
+                                <p>你好，年轻的科学家！我是阿尔伯特·爱因斯坦。</p>
+                                <p class="mt-2">无论你对力、光、能量还是宇宙的奥秘有什么疑问，都可以问我。我们一起探索物理世界的奇妙规律吧！</p>
+                            </div>
+                        </div>
+                        
+                        <!-- 示例问题提示 -->
+                        <div class="mb-6 px-4 py-3 bg-blue-50 rounded-lg text-sm text-gray-600 max-w-[85%]">
+                            <p class="font-medium mb-2">你可以尝试问这些问题：</p>
+                            <div class="flex flex-wrap gap-2">
+                                <span class="example-question px-3 py-1 bg-white rounded-full text-xs cursor-pointer border border-gray-200 hover:border-primary hover:text-primary transition-colors">什么是相对论？</span>
+                                <span class="example-question px-3 py-1 bg-white rounded-full text-xs cursor-pointer border border-gray-200 hover:border-primary hover:text-primary transition-colors">为什么物体会下落？</span>
+                                <span class="example-question px-3 py-1 bg-white rounded-full text-xs cursor-pointer border border-gray-200 hover:border-primary hover:text-primary transition-colors">光是什么？</span>
+                                <span class="example-question px-3 py-1 bg-white rounded-full text-xs cursor-pointer border border-gray-200 hover:border-primary hover:text-primary transition-colors">能量守恒是什么意思？</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 输入区域 -->
+                    <div class="p-4 border-t border-gray-100">
+                        <form id="chatForm" class="flex gap-3">
+                            <input type="text" id="userInput" placeholder="请输入你的物理问题..." class="flex-1 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-base" autocomplete="off">
+                            <button type="submit" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg transition-all flex items-center justify-center">
+                                <i class="fa fa-paper-plane text-lg"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- 展项操作指南 -->
+                <div class="mt-4 bg-white/80 backdrop-blur-sm p-3 rounded-lg text-xs text-gray-600">
+                    <p class="font-medium text-gray-700 flex items-center">
+                        <i class="fa fa-info-circle mr-1 text-primary"></i> 展项操作指南
+                    </p>
+                    <ul class="mt-1 list-disc list-inside space-y-1">
+                        <li>在输入框中输入物理相关问题，点击发送按钮或按回车键提交</li>
+                        <li>可以点击示例问题快速提问</li>
+                        <li>左侧区域展示有趣的物理现象和知识</li>
+                        <li>点击"清空对话"可以重置聊天记录</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 页脚 -->
+        <footer class="mt-8 text-center text-gray-500 text-sm pb-6">
+            <p>© 2023 爱因斯坦物理探索空间 | 科普展项设计</p>
+        </footer>
+    </div>
+    
+    <!-- 帮助模态框 -->
+    <div id="helpModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 exhibit-shadow">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-display text-xl font-bold text-primary">使用帮助</h3>
+                <button id="closeHelpBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fa fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-sm">
+                <p><span class="font-semibold">关于本展项：</span>这是一个以爱因斯坦为虚拟人设的物理教学聊天机器人，旨在通过对话形式普及基础物理知识。</p>
+                <p><span class="font-semibold">可提问的内容：</span>经典力学、电磁学、光学、热学、相对论基础等物理知识。</p>
+                <p><span class="font-semibold">如何操作：</span>在底部输入框中输入问题，点击发送按钮或按回车键即可获得回答。</p>
+                <p><span class="font-semibold">提示：</span>如果遇到复杂问题，爱因斯坦会给出基础解释并建议进一步学习的方向。</p>
+            </div>
+            <button id="gotItBtn" class="mt-5 w-full bg-primary text-white py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                明白了
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 生成唯一的用户ID
+        const userId = 'user_' + Math.random().toString(36).substr(2, 9);
+        
+        // 物理知识数据库 - 扩展版
+        const physicsKnowledge = {
+            "什么是重力": "重力是物体之间相互吸引的力。地球对我们的重力让我们能站在地面上，也让月球围绕地球运转。<br><br>根据我的广义相对论，重力其实是质量弯曲时空的结果，就像一个重物放在弹性垫上会压出凹陷一样。其他物体则会沿着这个弯曲的路径运动。",
+            
+            "牛顿三大定律是什么": "牛顿三大定律是经典力学的基础：<br><br>1. <b>惯性定律</b>：物体会保持静止或匀速直线运动，除非受到外力作用。例如，静止的球会保持静止，直到你踢它。<br><br>2. <b>加速度定律</b>：力等于质量乘以加速度 (F=ma)。这意味着要让质量大的物体获得加速度，需要更大的力。<br><br>3. <b>作用与反作用定律</b>：每个作用力都有一个大小相等、方向相反的反作用力。比如，当你走路时，你的脚向后推地面，地面也向前推你的脚。",
+            
+            "为什么天空是蓝色的": "这是由于<b>瑞利散射</b>现象！阳光中的蓝色光波长较短（约450纳米），遇到大气中的分子和微小颗粒时，会比波长较长的红光（约650纳米）散射得更厉害。<br><br>当我们仰望天空时，看到的是被散射到各个方向的蓝色光，所以天空呈现蓝色。而在日出日落时，阳光穿过更长的大气层，蓝色光被散射掉了，剩下的主要是红光，所以天空会呈现橙红色。",
+            
+            "E=mc²是什么意思": "这个公式是<b>质能等价原理</b>的体现，意思是能量(E)等于质量(m)乘以光速(c)的平方。<br><br>它告诉我们质量和能量是可以相互转换的。即使是很小的质量，也包含巨大的能量——因为光速是一个非常大的数字（约300,000公里/秒）！<br><br>这一原理是核能的理论基础，也帮助我们理解恒星如何通过核聚变产生能量。",
+            
+            "什么是相对论": "相对论是我提出的关于时空和引力的理论，分为狭义相对论和广义相对论。<br><br><b>狭义相对论（1905年）</b>告诉我们：物理定律对所有观察者都是一样的，且光速在真空中恒定不变。这导致了一些有趣的结论，比如运动的时钟会变慢（时间膨胀），运动的物体长度会缩短。<br><br><b>广义相对论（1915年）</b>则将引力解释为质量和能量对时空的弯曲。可以说，引力不是一种'力'，而是时空本身的形状！这一理论成功解释了水星轨道的异常，并预言了黑洞的存在。",
+            
+            "光是什么": "光是一种电磁波，同时具有粒子和波的特性——这就是<b>波粒二象性</b>。<br><br>作为波，它有不同的波长，我们看到的不同颜色其实是不同波长的光。红光波长较长，蓝光波长较短。<br><br>作为粒子（称为光子），它携带能量。光电效应现象证明了光的粒子性——这也是我获得诺贝尔奖的研究成果！<br><br>最令人惊奇的是，光在真空中的速度对所有观察者都是相同的，约为300,000公里/秒。",
+            
+            "什么是能量守恒": "能量守恒定律指出：<b>能量既不能被创造，也不能被消灭，只能从一种形式转化为另一种形式</b>。<br><br>比如，当你把球抛向空中，动能转化为重力势能；球下落时，重力势能又转化为动能。整个过程中，总能量保持不变。<br><br>这个定律是物理学中最基本的定律之一，适用于我们宇宙中的大多数现象，从原子内部到星系运动。",
+            
+            "为什么物体会下落": "物体下落是因为受到了地球的引力作用。地球的巨大质量会产生引力场，吸引其周围的物体向地心方向运动。<br><br>根据我的广义相对论，这是因为地球的质量弯曲了周围的时空，物体沿着这个弯曲时空的最短路径运动，看起来就像是被'拉'向地球表面。<br><br>有趣的是，所有物体在真空中会以相同的加速度下落，与它们的质量无关——这就是伽利略在比萨斜塔上可能做过的实验所证明的！",
+            
+            "什么是量子力学": "量子力学是研究微观世界（如原子、电子、光子等）行为的物理学分支。与我们日常生活中的经典物理学不同，量子世界有一些奇特的特性：<br><br>1. <b>量子叠加</b>：粒子可以同时处于多个状态，就像著名的'薛定谔的猫'思想实验所描述的。<br><br>2. <b>量子纠缠</b>：两个粒子可以'纠缠'在一起，即使相距遥远，一个粒子的状态变化会立即影响另一个。<br><br>3. <b>不确定性原理</b>：我们无法同时精确测量粒子的位置和动量。<br><br>量子力学虽然难以用日常经验理解，但它是现代电子技术、计算机和许多医疗设备的基础。"
+        };
+
+        // 物理小知识数据库
+        const physicsFacts = [
+            "光从太阳到达地球大约需要8分20秒，这段距离被称为一个'天文单位'。",
+            "如果你能把1克物质的全部质量转化为能量（根据E=mc²），它将产生相当于2万吨TNT炸药的能量。",
+            "黑洞的引力如此强大，以至于连光都无法逃脱它的吸引，这也是它被称为'黑'洞的原因。",
+            "在真空中，所有物体都以相同的加速度下落，约为9.8米/秒²，与它们的质量无关。",
+            "宇宙中最常见的元素是氢，约占所有普通物质的75%，其次是氦，约占24%。",
+            "一根香蕉含有足够的钾-40同位素，每小时会发生约15次放射性衰变。",
+            "如果你以光速旅行，时间对你来说会停止，而宇宙在你看来会变成一个平面。",
+            "地球上的重力并不是均匀的，山脉和地质结构的变化会导致重力场的微小变化。"
+        ];
+
+        // 通用回复模板
+        const defaultResponses = [
+            "这是一个很有趣的问题！关于{question}，它是物理学中一个重要的概念。简单来说，{question}涉及到物质、能量、力或运动的基本原理。从基础层面讲...",
+            "你问的{question}是个好问题。在物理学中，我们可以从几个方面来理解它：首先，它与我们观察到的自然现象有关；其次，它可以通过数学公式来描述；最后，它有许多实际应用，比如...",
+            "啊，{question}！这个问题让我想起了当年做研究的日子。科学的乐趣就在于探索这些未知。简单解释的话，{question}的基本原理是..."
+        ];
+
+        // 显示消息到聊天界面
+        function displayMessage(role, content) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'flex mb-6 animate-[fadeIn_0.5s_ease-in-out]';
+            
+            let avatar, bgColor;
+            if (role === 'user') {
+                messageDiv.classList.add('justify-end');
+                avatar = './avatar.png';
+                bgColor = 'bg-blue-100';
+            } else {
+                avatar = 'https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/a7610d4fcc1247d0b03a4b3b246b8e72~tplv-a9rns2rl98-image.image?rcl=20250815200446C8F7C307DD1541DD4CFC&rk3s=8e244e95&rrcfp=2609e108&x-expires=1755864289&x-signature=FOgHL9as5jsgzsU8ECy3Lweqbuk%3D';
+                bgColor = 'bg-gray-100';
+            }
+            
+            messageDiv.innerHTML = `
+                <img src="${avatar}" alt="${role}头像" class="w-12 h-12 rounded-full mr-3 flex-shrink-0">
+                <div class="${bgColor} rounded-lg rounded-tr-none p-4 max-w-[85%] shadow-sm">
+                    <p>${content}</p>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // 发送消息到后端
+        async function sendMessage(message) {
+            const userInput = document.getElementById('userInput');
+            userInput.disabled = true;
+
+            try {
+                // 显示用户消息
+                displayMessage('user', message);
+
+                // 清空输入框
+                userInput.value = '';
+
+                // 创建助手消息容器
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+
+                // 发送请求到后端
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId, message }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+
+                // 逐步读取流式响应
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value, { stream: true });
+                    const lines = chunk.split('\n\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.substring(6);
+                            if (data === '[DONE]') {
+                                // 完成响应
+                                break;
+                            }
+
+                            try {
+                                const jsonData = JSON.parse(data);
+                                if (jsonData.content) {
+                                    fullResponse += jsonData.content;
+                                    assistantResponse.innerHTML = fullResponse;
+                                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                                }
+                            } catch (e) {
+                                console.error('Error parsing JSON:', e);
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error sending message:', error);
+                displayMessage('assistant', '抱歉，网络请求失败，请稍后重试。');
+            } finally {
+                userInput.disabled = false;
+            }
+        }
+
+        // 清空对话历史
+        async function clearChatHistory() {
+            try {
+                await fetch('/clear_history', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: userId
+                    })
+                });
+                
+                // 清空聊天界面
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = `
+                    <!-- 欢迎消息 -->
+                    <div class="flex mb-6 animate-[fadeIn_0.5s_ease-in-out]">
+                        <img src="https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/rc/pc/code_assistant/a7610d4fcc1247d0b03a4b3b246b8e72~tplv-a9rns2rl98-image.image?rcl=20250815200446C8F7C307DD1541DD4CFC&rk3s=8e244e95&rrcfp=2609e108&x-expires=1755864289&x-signature=FOgHL9as5jsgzsU8ECy3Lweqbuk%3D" alt="爱因斯坦头像" class="w-12 h-12 rounded-full mr-3 flex-shrink-0">
+                        <div class="bg-gray-100 rounded-lg rounded-tr-none p-4 max-w-[85%] shadow-sm">
+                            <p>你好，年轻的科学家！我是阿尔伯特·爱因斯坦。</p>
+                            <p class="mt-2">无论你对力、光、能量还是宇宙的奥秘有什么疑问，都可以问我。我们一起探索物理世界的奇妙规律吧！</p>
+                        </div>
+                    </div>
+                    
+                    <!-- 示例问题提示 -->
+                    <div class="mb-6 px-4 py-3 bg-blue-50 rounded-lg text-sm text-gray-600 max-w-[85%]">
+                        <p class="font-medium mb-2">你可以尝试问这些问题：</p>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="example-question px-3 py-1 bg-white rounded-full text-xs cursor-pointer border border-gray-200 hover:border-primary hover:text-primary transition-colors">什么是相对论？</span>
+                            <span class="example-question px-3 py-1 bg-white rounded-full text-xs cursor-pointer border border-gray-200 hover:border-primary hover:text-primary transition-colors">为什么物体会下落？</span>
+                            <span class="example-question px-3 py-1 bg-white rounded-full text-xs cursor-pointer border border-gray-200 hover:border-primary hover:text-primary transition-colors">光是什么？</span>
+                            <span class="example-question px-3 py-1 bg-white rounded-full text-xs cursor-pointer border border-gray-200 hover:border-primary hover:text-primary transition-colors">能量守恒是什么意思？</span>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error clearing chat history:', error);
+            }
+        }
+
+        // 页面加载完成后绑定事件
+        document.addEventListener('DOMContentLoaded', function() {
+            // 绑定发送按钮事件
+            document.getElementById('chatForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const userInput = document.getElementById('userInput');
+                const message = userInput.value.trim();
+                if (message) {
+                    sendMessage(message);
+                }
+            });
+            
+            // 绑定回车键事件
+            document.getElementById('userInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    const message = this.value.trim();
+                    if (message) {
+                        sendMessage(message);
+                    }
+                }
+            });
+            
+            // 绑定示例问题点击事件
+            document.querySelectorAll('.example-question').forEach(function(element) {
+                element.addEventListener('click', function() {
+                    const question = this.textContent;
+                    sendMessage(question);
+                });
+            });
+            
+            // 绑定清空对话按钮事件
+            document.getElementById('clearChatBtn').addEventListener('click', clearChatHistory);
+            
+            // 绑定帮助按钮事件
+            const helpModal = document.getElementById('helpModal');
+            document.getElementById('helpBtn').addEventListener('click', function() {
+                helpModal.classList.remove('hidden');
+            });
+            
+            document.getElementById('closeHelpBtn').addEventListener('click', function() {
+                helpModal.classList.add('hidden');
+            });
+            
+            document.getElementById('gotItBtn').addEventListener('click', function() {
+                helpModal.classList.add('hidden');
+            });
+            
+            // 点击模态框外部关闭
+            window.addEventListener('click', function(e) {
+                if (e.target === helpModal) {
+                    helpModal.classList.add('hidden');
+                }
+            });
+            
+            // 绑定换一个知识点按钮事件
+            document.getElementById('newFactBtn').addEventListener('click', function() {
+                const factContainer = document.getElementById('factContainer');
+                const randomFact = physicsFacts[Math.floor(Math.random() * physicsFacts.length)];
+                factContainer.innerHTML = `
+                    <div class="p-3 bg-blue-50 rounded-lg border-l-4 border-primary">
+                        <p class="text-sm">${randomFact}</p>
+                    </div>
+                `;
+            });
+        });
+    </script>
+
+
+</body></html>
