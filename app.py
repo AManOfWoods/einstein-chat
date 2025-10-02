@@ -25,36 +25,40 @@ einstein_persona = {
 # Function to get the answer from the model
 def get_answer(message):
     headers = {
-        'Authorization': api_key,
-        'content-type': "application/json"
+        'Authorization': f'Bearer {api_key}',  # 讯飞星火API使用Bearer token格式
+        'Content-Type': "application/json"
     }
     
     # Add the Einstein persona to the message history
     messages = [einstein_persona] + message
     
     body = {
-        "model": "4.0Ultra",
+        "model": "x1",
         "user": "user_id",
         "messages": messages,
         "stream": False,  # Set to False for simpler handling
-        "tools": [
-            {
-                "type": "web_search",
-                "web_search": {
-                    "enable": True,
-                    "search_mode": "deep"
-                }
-            }
-        ]
+        "max_tokens": 4096,
+        "temperature": 1.2
     }
     
     try:
-        response = requests.post(url=url, json=body, headers=headers)
-        response.raise_for_status()  # Raise an exception for bad status codes
-        
-        # Debugging: Print the raw response from the API
-        print("API Response:", response.text)
-        
+        print(f"[DEBUG] 准备调用API，URL: {url}", flush=True)
+        print(f"[DEBUG] API Key: {api_key[:20] if api_key else 'None'}...", flush=True)
+        print(f"[DEBUG] Headers: {headers}", flush=True)
+
+        response = requests.post(url=url, json=body, headers=headers, timeout=30)
+
+        print(f"[DEBUG] API响应状态码: {response.status_code}", flush=True)
+        print(f"[DEBUG] API响应内容: {response.text[:1000]}", flush=True)
+
+        # 先检查状态码，不要立即raise_for_status
+        if response.status_code != 200:
+            error_msg = f"API返回错误状态码 {response.status_code}: {response.text[:500]}"
+            print(f"[ERROR] {error_msg}", flush=True)
+            return error_msg
+
+        response.raise_for_status()
+
         # Check if the response is valid JSON
         if 'application/json' in response.headers.get('Content-Type', ''):
             data = response.json()
@@ -62,18 +66,29 @@ def get_answer(message):
                 content = data['choices'][0].get('message', {}).get('content', '')
                 return content.strip() if content else "抱歉，我暂时无法回答这个问题。"
             else:
-                return "API响应格式不正确，缺少'choices'字段。"
+                print(f"[ERROR] API响应缺少choices字段: {data}")
+                return f"API响应格式不正确。响应内容: {str(data)[:200]}"
         else:
+            print(f"[ERROR] 非JSON响应: {response.text[:200]}")
             return "API未返回有效的JSON响应。"
-            
+
+    except requests.exceptions.Timeout as e:
+        print(f"[ERROR] 请求超时: {e}")
+        return "API请求超时，请稍后重试。"
+    except requests.exceptions.ConnectionError as e:
+        print(f"[ERROR] 连接错误: {e}")
+        return "无法连接到API服务器，请检查网络。"
     except requests.exceptions.RequestException as e:
-        print(f"请求错误: {e}")
-        return "请求API时发生网络错误。"
-    except json.JSONDecodeError:
+        print(f"[ERROR] 请求异常: {type(e).__name__} - {e}")
+        return f"请求API时发生错误: {type(e).__name__}"
+    except json.JSONDecodeError as e:
+        print(f"[ERROR] JSON解析错误: {e}")
         return "无法解析API响应。"
     except Exception as e:
-        print(f"处理响应时发生未知错误: {e}")
-        return "处理响应时发生未知错误。"
+        print(f"[ERROR] 未知错误: {type(e).__name__} - {e}")
+        import traceback
+        traceback.print_exc()
+        return f"处理响应时发生错误: {type(e).__name__}"
 
 @app.route('/')
 def index():
